@@ -55,7 +55,47 @@ struct Wrapper
     { 
         std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
     }
+
+    void print()
+    {
+        std::cout << "Wrapper::print(" << val << ")\n";
+    }
+
+    Type val;
 };
+
+template<>
+struct Wrapper<Point>
+{
+    Wrapper(Point&& t) : val(std::move(t)) 
+    { 
+        std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
+    }
+
+    void print()
+    {
+        std::cout << "Wrapper::print(" << val.toString() << ")\n";
+    }
+
+    Point val;
+};
+
+template<typename T, typename ...Args>
+void variadicHelper(T&& first, Args ... everythingElse)
+{
+    Wrapper wrapper ( std::forward<T>(first) );
+    wrapper.print();
+    variadicHelper( std::forward<Args>(everythingElse)... ); //recursive call
+}
+
+//overload with 1 parameter
+template<typename T>
+void variadicHelper(T&& first)
+{
+    Wrapper wrapper( std::forward<T>(first) );
+    wrapper.print();
+    std::cout << "Reached end of parameters\n";
+}
 
 int main()
 {
